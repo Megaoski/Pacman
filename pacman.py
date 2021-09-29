@@ -1,7 +1,8 @@
 #Pacman in Python with PyGame
 #https://github.com/hbokmann/Pacman
   
-import pygame._view
+import pygame
+
   
 black = (0,0,0)
 white = (255,255,255)
@@ -15,9 +16,9 @@ Trollicon=pygame.image.load('images/Trollman.png')
 pygame.display.set_icon(Trollicon)
 
 #Add music
-pygame.mixer.init()
-pygame.mixer.music.load('pacman.mp3')
-pygame.mixer.music.play(-1, 0.0)
+#pygame.mixer.init()
+#pygame.mixer.music.load('pacman.mp3')
+#pygame.mixer.music.play(-1, 0.0)
 
 # This class represents the bar at the bottom that the player controls
 class Wall(pygame.sprite.Sprite):
@@ -398,7 +399,7 @@ def startGame():
 
 
   # Create the player paddle object
-  Pacman = Player( w, p_h, "images/Trollman.png" )
+  Pacman = Player( w, p_h, "images/pacman.png" )
   all_sprites_list.add(Pacman)
   pacman_collide.add(Pacman)
    
@@ -524,13 +525,18 @@ def startGame():
       text=font.render("Score: "+str(score)+"/"+str(bll), True, red)
       screen.blit(text, [10, 10])
 
-      if score == bll:
+      if score == bll or not monsta_list:#We check if ghost in the list are dead, if so also win the game
         doNext("Congratulations, you won!",145,all_sprites_list,block_list,monsta_list,pacman_collide,wall_list,gate)
 
-      monsta_hit_list = pygame.sprite.spritecollide(Pacman, monsta_list, False)
+      monsta_hit_list = pygame.sprite.spritecollide(Pacman, monsta_list, True)
+     
+      #We don't need the condition check anymore since now Ghost won't kill the player, instead
+      #check if total number of ghost is 4 to the 32
 
-      if monsta_hit_list:
-        doNext("Game Over",235,all_sprites_list,block_list,monsta_list,pacman_collide,wall_list,gate)
+      #if monsta_hit_list:        
+        #doNext("Game Over",235,all_sprites_list,block_list,monsta_list,pacman_collide,wall_list,gate)
+        
+
 
       # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
       
