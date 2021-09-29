@@ -3,6 +3,7 @@
   
 import pygame
 
+
   
 black = (0,0,0)
 white = (255,255,255)
@@ -14,6 +15,10 @@ yellow   = ( 255, 255,   0)
 
 Trollicon=pygame.image.load('images/Trollman.png')
 pygame.display.set_icon(Trollicon)
+
+
+current_time = 0
+spawn_time = 0
 
 #Add music
 #pygame.mixer.init()
@@ -221,6 +226,12 @@ class Ghost(Player):
         return [turn,steps]
       except IndexError:
          return [0,0]
+    def expand(self):
+      return Ghost(w, m_h, "images/Pinky.png")
+      
+      
+
+    
 
 Pinky_directions = [
 [0,-30,4],
@@ -358,6 +369,7 @@ background.fill(black)
 
 
 clock = pygame.time.Clock()
+timer = pygame.time.Clock()
 
 pygame.font.init()
 font = pygame.font.Font("freesansbold.ttf", 24)
@@ -371,7 +383,8 @@ i_w = 303-16-32 #Inky width
 c_w = 303+(32-16) #Clyde width
 
 def startGame():
-
+  spawn_time = 0 
+  
   all_sprites_list = pygame.sprite.RenderPlain()
 
   block_list = pygame.sprite.RenderPlain()
@@ -456,15 +469,20 @@ def startGame():
           if event.type == pygame.QUIT:
               done=True
 
-          if event.type == pygame.KEYDOWN:
+          if event.type == pygame.KEYDOWN:              
               if event.key == pygame.K_LEFT:
                   Pacman.changespeed(-30,0)
               if event.key == pygame.K_RIGHT:
                   Pacman.changespeed(30,0)
+                  clock.tick(60)
               if event.key == pygame.K_UP:
                   Pacman.changespeed(0,-30)
               if event.key == pygame.K_DOWN:
                   Pacman.changespeed(0,30)
+              if event.key == pygame.K_w:
+                spawn_time = pygame.time.get_ticks() 
+
+                           
 
           if event.type == pygame.KEYUP:
               if event.key == pygame.K_LEFT:
@@ -477,6 +495,8 @@ def startGame():
                   Pacman.changespeed(0,-30)
           
       # ALL EVENT PROCESSING SHOULD GO ABOVE THIS COMMENT
+
+      current_time = pygame.time.get_ticks()
    
       # ALL GAME LOGIC SHOULD GO BELOW THIS COMMENT
       Pacman.update(wall_list,gate)
@@ -484,8 +504,14 @@ def startGame():
       returned = Pinky.changespeed(Pinky_directions,False,p_turn,p_steps,pl)
       p_turn = returned[0]
       p_steps = returned[1]
-      Pinky.changespeed(Pinky_directions,False,p_turn,p_steps,pl)
+      Pinky.changespeed(Pinky_directions,False,p_turn,p_steps,pl)      
       Pinky.update(wall_list,False)
+      #Every 30 seconds create a copy, added to monster list and keep track if its bigger than 128
+      if current_time >= 3000:
+        PinkyCopy = Pinky.expand()
+        monsta_list.add(PinkyCopy)
+        all_sprites_list.add(PinkyCopy)
+        #current_time = 0
 
       returned = Blinky.changespeed(Blinky_directions,False,b_turn,b_steps,bl)
       b_turn = returned[0]
@@ -539,8 +565,10 @@ def startGame():
 
 
       # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
-      
+      print(f"current time: {current_time} spawn time: {spawn_time}")
+
       pygame.display.flip()
+      timer.tick(60)
     
       clock.tick(10)
 
