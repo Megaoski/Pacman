@@ -20,6 +20,7 @@ pygame.display.set_icon(Trollicon)
 current_time = 0
 spawn_time = 0
 
+
 #Add music
 #pygame.mixer.init()
 #pygame.mixer.music.load('pacman.mp3')
@@ -131,7 +132,10 @@ class Player(pygame.sprite.Sprite):
     # Set speed vector
     change_x=0
     change_y=0
-  
+    flippedimage = 0
+    normalimage = 0
+    
+    
     # Constructor function
     def __init__(self,x,y, filename):
         # Call the parent's constructor
@@ -139,6 +143,8 @@ class Player(pygame.sprite.Sprite):
    
         # Set height, width
         self.image = pygame.image.load(filename).convert()
+        self.normalimage = self.image
+        self.flippedimage = pygame.transform.flip(self.image, True, False)
   
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
@@ -156,7 +162,7 @@ class Player(pygame.sprite.Sprite):
     def changespeed(self,x,y):
         self.change_x+=x
         self.change_y+=y
-          
+
     # Find a new position for the player
     def update(self,walls,gate):
         # Get the old position, in case we need to go back to it
@@ -383,6 +389,8 @@ i_w = 303-16-32 #Inky width
 c_w = 303+(32-16) #Clyde width
 
 def startGame():
+
+
   spawn_time = 0 
   
   all_sprites_list = pygame.sprite.RenderPlain()
@@ -464,17 +472,18 @@ def startGame():
   i = 0
 
   while done == False:
+      
       # ALL EVENT PROCESSING SHOULD GO BELOW THIS COMMENT
       for event in pygame.event.get():
           if event.type == pygame.QUIT:
               done=True
 
           if event.type == pygame.KEYDOWN:              
-              if event.key == pygame.K_LEFT:
+              if event.key == pygame.K_LEFT:                 
                   Pacman.changespeed(-30,0)
-              if event.key == pygame.K_RIGHT:
+              if event.key == pygame.K_RIGHT:                  
                   Pacman.changespeed(30,0)
-                  clock.tick(60)
+                  #clock.tick(60)
               if event.key == pygame.K_UP:
                   Pacman.changespeed(0,-30)
               if event.key == pygame.K_DOWN:
@@ -495,6 +504,14 @@ def startGame():
                   Pacman.changespeed(0,-30)
           
       # ALL EVENT PROCESSING SHOULD GO ABOVE THIS COMMENT
+
+      #CHECK PACKMAN DIRECTION TO CHANGE IMAGE
+      if(Pacman.change_x < 0):
+        Pacman.image = Pacman.flippedimage
+      if(Pacman.change_x > 0):
+        Pacman.image = Pacman.normalimage
+        
+    
 
       current_time = pygame.time.get_ticks()
    
