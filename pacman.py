@@ -18,8 +18,6 @@ pygame.display.set_icon(Trollicon)
 
 
 current_time = 0
-spawn_time = 0
-
 
 #Add music
 #pygame.mixer.init()
@@ -140,7 +138,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,x,y, filename):
         # Call the parent's constructor
         pygame.sprite.Sprite.__init__(self)
-   
+
         # Set height, width
         self.image = pygame.image.load(filename).convert()
         self.normalimage = self.image
@@ -234,6 +232,9 @@ class Ghost(Player):
          return [0,0]
     def expand(self):
       return Ghost(w, m_h, "images/Pinky.png")
+
+    def checkAlive(self):
+      return pygame.sprite.Sprite.alive(self)
       
       
 
@@ -389,10 +390,8 @@ i_w = 303-16-32 #Inky width
 c_w = 303+(32-16) #Clyde width
 
 def startGame():
-
-
-  spawn_time = 0 
   
+   
   all_sprites_list = pygame.sprite.RenderPlain()
 
   block_list = pygame.sprite.RenderPlain()
@@ -431,6 +430,7 @@ def startGame():
   Pinky=Ghost( w, m_h, "images/Pinky.png" )
   monsta_list.add(Pinky)
   all_sprites_list.add(Pinky)
+  
    
   Inky=Ghost( i_w, m_h, "images/Inky.png" )
   monsta_list.add(Inky)
@@ -488,8 +488,7 @@ def startGame():
                   Pacman.changespeed(0,-30)
               if event.key == pygame.K_DOWN:
                   Pacman.changespeed(0,30)
-              if event.key == pygame.K_w:
-                spawn_time = pygame.time.get_ticks() 
+               
 
                            
 
@@ -511,6 +510,7 @@ def startGame():
       if(Pacman.change_x > 0):
         Pacman.image = Pacman.normalimage
         
+      Pinky.checkAlive()
     
 
       current_time = pygame.time.get_ticks()
@@ -523,12 +523,13 @@ def startGame():
       p_steps = returned[1]
       Pinky.changespeed(Pinky_directions,False,p_turn,p_steps,pl)      
       Pinky.update(wall_list,False)
-      #Every 30 seconds create a copy, added to monster list and keep track if its bigger than 128
-      if current_time >= 3000:
-        PinkyCopy = Pinky.expand()
-        monsta_list.add(PinkyCopy)
-        all_sprites_list.add(PinkyCopy)
-        #current_time = 0
+      #Every 30 seconds create a copy if alive, add to monster list and keep track if its bigger than 128copies
+      if Pinky.checkAlive():
+        if current_time >= 10000:
+          PinkyCopy = Pinky.expand()
+          monsta_list.add(PinkyCopy)
+          all_sprites_list.add(PinkyCopy)
+          current_time = 0
 
       returned = Blinky.changespeed(Blinky_directions,False,b_turn,b_steps,bl)
       b_turn = returned[0]
@@ -582,7 +583,10 @@ def startGame():
 
 
       # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
-      print(f"current time: {current_time} spawn time: {spawn_time}")
+      print(f"current time: {current_time}")
+      #print(f"{Pinky.checkAlive()}")
+     
+      
 
       pygame.display.flip()
       timer.tick(60)
